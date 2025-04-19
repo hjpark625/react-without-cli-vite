@@ -1,25 +1,25 @@
 import tsEslint from 'typescript-eslint'
-import tsParser from '@typescript-eslint/parser'
 import js from '@eslint/js'
 import globals from 'globals'
-import tsPlugin from '@typescript-eslint/eslint-plugin'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y'
 import prettierPlugin from 'eslint-plugin-prettier'
 
 const config = [
-  { ignores: ['node_modules', 'dist'] },
+  { ignores: ['node_modules', 'dist', 'eslint.config.js', '.prettierrc.js'] },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
-      parser: tsParser,
+      parser: tsEslint.parser,
       globals: {
         ...globals.browser,
         ...globals.node,
         ...globals.es2020
       },
       parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: process.cwd(),
         ecmaVersion: 'latest',
         sourceType: 'module',
         ecmaFeatures: {
@@ -27,9 +27,8 @@ const config = [
         }
       }
     },
-
+    extends: [...tsEslint.configs.recommended, ...tsEslint.configs.recommendedTypeCheckedOnly],
     plugins: {
-      '@typescript-eslint': tsPlugin,
       react: reactPlugin,
       prettier: prettierPlugin,
       'react-hooks': reactHooksPlugin,
@@ -37,14 +36,11 @@ const config = [
     },
 
     rules: {
-      ...tsEslint.configs.recommendedTypeCheckedOnly.rules,
-
       ...js.configs.recommended.rules,
 
-      ...tsPlugin.configs.recommended.rules,
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 
-      ...reactPlugin.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
 
       ...reactHooksPlugin.configs.recommended.rules,
